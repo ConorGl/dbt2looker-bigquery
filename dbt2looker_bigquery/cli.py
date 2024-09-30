@@ -103,13 +103,19 @@ def run():
     typed_dbt_models = parser.parse_typed_models(raw_manifest, raw_catalog, tag=args.tag, exposures_only=args.exposures_only, select_model=args.select)
 
     adapter_type = parser.parse_adapter_type(raw_manifest)
-    
+
+
     # Generate lookml views
-    lookml_views = [
-        generator.lookml_view_from_dbt_model(model, adapter_type)
-        for model in typed_dbt_models
-        if generator.lookml_view_from_dbt_model(model, adapter_type) is not None
-    ]
+    # lookml_views = [
+    #     generator.lookml_view_from_dbt_model(model, adapter_type)
+    #     for model in typed_dbt_models
+    #     if generator.lookml_view_from_dbt_model(model, adapter_type) is not None
+    # ]
+    lookml_views = []
+    for model in typed_dbt_models:
+        logging.debug(f"{model.name}")
+        lookml_views.append(generator.lookml_view_from_dbt_model(model, adapter_type))
+
     pathlib.Path(os.path.join(args.output_dir, 'views')).mkdir(exist_ok=True, parents=True)
     for view in lookml_views:
         # handle schema name
